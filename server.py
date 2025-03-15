@@ -7,9 +7,11 @@ from PIL import Image
 import io
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-
+import os
+port = int(os.environ.get("PORT", 10000))
 app = Flask(__name__)
 CORS(app)
+
 def get_resnet34(num_classes=32):
     model = models.resnet34(weights=models.ResNet34_Weights.DEFAULT)
     num_ftrs = model.fc.in_features
@@ -30,6 +32,10 @@ transform = transforms.Compose([
     transforms.ToTensor(),
 ])
 
+@app.route("/")
+def home():
+    return "Hello, Render!"
+
 @app.route("/predict", methods=["POST"])
 def predict():
     data = request.json
@@ -49,5 +55,5 @@ def predict():
 
     return jsonify({"letter": chr(1040 + predicted_class)})  # Пример: 1040 = 'А' в Unicode
 
-if __name__ == "__main__":
-    app.run(port=5000)
+
+app.run(host="0.0.0.0", port=port)
