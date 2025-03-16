@@ -3,18 +3,50 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 let drawing = false;
 
-canvas.addEventListener('mousedown', () => drawing = true);
-canvas.addEventListener('mouseup', () => drawing = false);
-canvas.addEventListener('mouseleave', () => drawing = false);
+const startDrawing = (event) => {
+    drawing = true;
+    const pos = getMousePosition(event);
+    ctx.moveTo(pos.x, pos.y);
+};
 
-canvas.addEventListener('mousemove', (event) => {
+const stopDrawing = () => {
+    drawing = false;
+    ctx.beginPath(); // Переключаем на новый путь
+};
+
+const draw = (event) => {
     if (!drawing) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-    ctx.fillStyle = "black";
-    ctx.fillRect(x, y, 10, 10);
-});
+    const pos = getMousePosition(event);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+};
+
+// Универсальная функция для получения позиции мыши или пальца
+const getMousePosition = (event) => {
+    let x, y;
+    if (event.touches) {
+        // Для сенсорных экранов
+        const touch = event.touches[0];
+        x = touch.clientX - canvas.offsetLeft;
+        y = touch.clientY - canvas.offsetTop;
+    } else {
+        // Для мыши
+        x = event.clientX - canvas.offsetLeft;
+        y = event.clientY - canvas.offsetTop;
+    }
+    return { x, y };
+};
+
+// Обработчики для мобильных устройств и десктопов
+canvas.addEventListener('mousedown', startDrawing);
+canvas.addEventListener('mousemove', draw);
+canvas.addEventListener('mouseup', stopDrawing);
+canvas.addEventListener('mouseout', stopDrawing);
+
+canvas.addEventListener('touchstart', startDrawing);
+canvas.addEventListener('touchmove', draw);
+canvas.addEventListener('touchend', stopDrawing);
+canvas.addEventListener('touchcancel', stopDrawing);
 
 // Функция для очистки канваса
 function clearCanvas() {
@@ -50,9 +82,9 @@ async function recognizeLetter() {
 
     const result = await response.json();
     document.getElementById('result').innerText = "Распознанная буква: " + result.letter;
-    
 }
-// Каждые 5 минут (300000 миллисекунд) отправлять GET запрос на сервер
+
+// Каждые 3 минуты (180000 миллисекунд) отправлять GET запрос на сервер
 setInterval(() => {
     fetch('https://cyryllicback.onrender.com/', { method: 'GET' })
         .then(response => {
@@ -65,5 +97,4 @@ setInterval(() => {
         .catch(error => {
             console.log('Ошибка при отправке пинга:', error);
         });
-}, 1000*60*3); // 5 минут
-
+}, 1000 * 60 * 3); // 3 минуты
