@@ -3,6 +3,9 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 let drawing = false;
 
+// Устанавливаем толщину линии
+ctx.lineWidth = 10; // Увеличиваем толщину линии
+
 const startDrawing = (event) => {
     drawing = true;
     const pos = getMousePosition(event);
