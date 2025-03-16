@@ -50,4 +50,20 @@ async function recognizeLetter() {
 
     const result = await response.json();
     document.getElementById('result').innerText = "Распознанная буква: " + result.letter;
+    
 }
+// Каждые 5 минут (300000 миллисекунд) отправлять GET запрос на сервер
+setInterval(() => {
+    fetch('https://cyryllicback.onrender.com/', { method: 'GET' })
+        .then(response => {
+            if (response.ok) {
+                console.log('Пинг успешен!');
+            } else {
+                console.log('Ошибка пинга!');
+            }
+        })
+        .catch(error => {
+            console.log('Ошибка при отправке пинга:', error);
+        });
+}, 1000*60*3); // 5 минут
+
